@@ -1,0 +1,73 @@
+import pandas as pd
+flight_or=pd.read_csv(r"C:\Users\AKHIL\Desktop\R csv\Flight1987.csv")
+print(flight_or.head())
+flight2=flight_or.dropna()
+flight1=flight2.iloc[:,[1,2,3,4,5,6,7,10,11,12,13,16]]
+flight=flight1
+flight.head()
+flight.Month=flight.Month.astype("category")
+flight.DayofMonth=flight.DayofMonth.astype("category")
+flight.DayOfWeek=flight.DayOfWeek.astype("category")
+
+#flight_n=flight.iloc[1:51,[10]]
+#flight.DepDelay.max()
+
+aa_1=(flight.DepDelay<=30)
+flight_1=flight[aa_1]
+
+flight_1.loc[:,["DepDelay"]]= 0
+flight_1.head()
+
+#flight.DepDelay2=(flight.DepDelay>30)
+
+aa_2=(flight.DepDelay>30)
+flight_2=flight[aa_2]
+
+flight_2.loc[:,["DepDelay"]]=1
+flight_2.head()
+
+
+flight_new=pd.concat([flight_1, flight_2])
+flight_new=flight_new.sample(frac=1)
+
+flight_new.head()
+flight_new.CRSDepTime=(1/100)*flight_new.CRSDepTime
+flight_new.ArrTime=(1/100)*flight_new.ArrTime
+flight_new.CRSArrTime=(1/100)*flight_new.CRSArrTime
+flight_new.ActualElapsedTime=(1/100)*flight_new.ActualElapsedTime
+
+
+#f_x1=flight_new.loc[:,["Month","DayofMonth","DayOfWeek","DepTime","CRSDepTime",
+                       #"ArrTime","CRSArrTime","ActualElapsedTime",
+                      # "CRSElapsedTime","ArrDelay","Distance"]]
+        
+        
+f_x=flight_new.loc[:,["DepTime"]]
+f_x.head()
+
+
+f_y=flight_new.loc[:,["DepDelay"]]
+f_y
+################################################################################################################################
+from sklearn.model_selection import train_test_split
+f_x_train,f_x_test,f_y_train,f_y_test=train_test_split(f_x,f_y,test_size=0.3,random_state=101)
+
+
+
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+
+flight_dtree= DecisionTreeClassifier()
+flight_dtree.fit(f_x_train,f_y_train)
+flight_pred=flight_dtree.predict(f_x_test)
+
+from sklearn.metrics import confusion_matrix
+
+tab1=confusion_matrix(flight_pred,f_y_test)
+tab1
+acc=sum(tab1.diagonal())/tab1.sum()
+acc
+
+#flight_dtree.feature_importances_
+tab1
+sum(tab1.diagonal())/tab1.sum()
